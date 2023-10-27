@@ -1,3 +1,7 @@
+<script>
+    export let data;
+</script>
+
 <div class="container-fluid">
     <div class="row">
         <!-- SideBar Search and Tag Layout -->
