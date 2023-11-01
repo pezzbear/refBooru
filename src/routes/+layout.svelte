@@ -25,4 +25,8 @@
     <slot />
 </div>
 
+<footer>
+    
+</footer>
+
 
