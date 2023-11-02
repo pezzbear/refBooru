@@ -3,11 +3,18 @@
     //Image Data stuff
     export let data;
 
-    let references = data.images
+    const references = data.images
+
+    const tags = data.tags
+
+    const imageTags = data.imageTags
+
+    const tagType = data.tagTypes
 
     let currentPage = 0;
     
     let itemsPerPage = 10;
+
     $: totalPages = Math.ceil(references.length/itemsPerPage);
 
     // Returns all of the visible images that get displayed on the page
@@ -19,9 +26,6 @@
 
     // Returns a list of the top 20 tags sorted by the amount of images that have that tag
     function getTagsByNumberOfEntry() {
-        let tags = data.tags;
-        let imageTags = data.imageTags;
-
         let tempMap = new Map();
 
         // Count the occurrences of each TagID in imageTags
@@ -36,18 +40,28 @@
             }
         });
 
-        // Sort the tags array based on tag counts in descending order
-        tempMap = new Map([...tempMap.entries()].sort());
- 
-        // Separately printing only keys
-        for (let [key, value] of tempMap) {
-            console.log(key, value);
-        }
+        // Converts the map to an array then sorts it by decending order (number of images per tag)
+        const tempArray = [...new Set(tempMap)];
 
-        return tags;
+        tempArray.sort(compareSecondColumn)
+
+        //Take that array, and figure
+        
+        return tempArray;
     }
 
-    getTagsByNumberOfEntry();
+    /** Function that is used to sort the tags array
+         * @param {number[]} a
+         * @param {number[]} b
+         */
+         function compareSecondColumn(a, b) {
+            if (a[1] === b[1]) {
+                return 0;
+            }
+            else {
+                return (a[1] > b[1]) ? -1 : 1;
+            }
+        }
 
     /**
      * @param {number} page
@@ -127,8 +141,9 @@
                 <!-- Tags -->
                 <h5 id="tags">Tags: </h5>
                 <ul>
-                    {#each getVisibleImages() as image, index (image.imageID)}
-                        <li></li>
+                    {#each getTagsByNumberOfEntry() as imgTag}
+                      
+                      <li></li>
                     {/each}
                 </ul>
             </div>
