@@ -123,3 +123,18 @@ padding: 0;
     vertical-align: bottom;
     line-height: 1;
 }
+
+.circle {
+    color:white;
+    width: 25px;
+    height: 25px;
+    -webkit-border-radius: 25px;
+    -moz-border-radius: 25px;
+    border-radius: 25px;
+    background: red;
+    margin-bottom:5px;
+  }
+
+  .tag-link {
+    color
+  }
