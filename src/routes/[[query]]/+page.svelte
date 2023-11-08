@@ -1,7 +1,10 @@
 
 <script>
+    import { enhance } from '$app/forms';
+    import { goto } from '$app/navigation';
+
     //Image Data stuff
-    export let data;
+    export let data
 
     const references = data.images
 
@@ -19,32 +22,119 @@
 
     $: totalPages = Math.ceil(references.length/itemsPerPage);
 
-    // TAG SEARCH UTILITY ------------------------------------------------------------------------------------------------
+    /**
+     * @type {any[]}
+     */
+    let tagSuggestions = [];
 
-    let searchIndex = "";
+    let isInputFocused = false;
+
+    // TAG SEARCH UTILITY ------------------------------------------------------------------------------------------------
 
     let searchQuery = "";
 
-    let searchUrl = "";
-
-    const handleSearch = () => {
-      searchUrl = `/search?query=${encodeURIComponent(searchQuery)}`;
-      console.log(searchUrl)
+    const handleSearch = (/** @type {{ preventDefault: () => void; }} */ event) => {
+      event.preventDefault();
+      goto(`/${searchQuery.toLowerCase()}`);
     };
 
     // Returns all of the visible images that get displayed on the page
-    $: getVisibleImages = (tag = "") => {
-      if (tag === "") {
-        const start = currentPage * itemsPerPage;
-        const end = Math.min(start + itemsPerPage, references.length);
-        return references.slice(start, end);
-      } else {
-        //TODO Write the search Logic - Everything below the line is temporary
-        const start = currentPage * itemsPerPage;
-        const end = Math.min(start + itemsPerPage, references.length);
-        return references.slice(start, end);
-      }
+    $: getVisibleImages = () => {
+      const start = currentPage * itemsPerPage;
+      const end = Math.min(start + itemsPerPage, references.length);
+      totalPages = Math.ceil(references.length/itemsPerPage);
+      return references.slice(start, end);
     }
+
+    // Returns all of the visible images that get displayed on the page sorted by tag
+    function getVisibleImagesByTag(searchTags = "") {
+        //Search Logic
+        /**
+           * @type {{ imageID: number; imageURL: string; }[]}
+           */
+        let searchedRefArray = [];
+
+        //First take the tags and convert them into an array with each entry being a tagID.
+        const tagArray = searchTags.split(' ');
+        /**
+           * @type {number[]}
+        */
+        let tagIDArray = [];
+
+        tags.forEach((getTag) => {
+          tagArray.forEach(name => {
+            if (getTag.tagName == name) {
+              tagIDArray.push(getTag.tagID);
+            }
+          });
+        });
+
+        //Looping through all off the reference images and checking if they have the included tags
+        references.forEach((ref) => {
+          let refIsValid = true; // Initialize a flag for each ref
+
+          for (let i = 0; i < tagIDArray.length; i++) {
+            if (!ImageHasTag(ref.imageID, tagIDArray[i])) {
+              refIsValid = false; // Set the flag to false and break the loop
+              break;
+            }
+          }
+
+          if (refIsValid) {
+            // Only if ref is valid for all tags, add it to the new array
+            searchedRefArray.push(ref);
+          }
+        });
+
+        //returning all of the tags to be displayed
+        const start = currentPage * itemsPerPage;
+        const end = Math.min(start + itemsPerPage, searchedRefArray.length);
+        totalPages = Math.ceil(searchedRefArray.length/itemsPerPage);
+        return searchedRefArray.slice(start, end);
+    }
+    
+    /**
+     * @param {number} imageID
+     * @param {number} tagID
+     */
+     function ImageHasTag(imageID, tagID) {
+        for (const imageTag of imageTags) {
+          if (imageID == imageTag.imageID && tagID == imageTag.tagID) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+    const handleInputChange = () => {
+      const query = searchQuery.toLowerCase();
+      const queryArray = query.split(" ");
+      const nextTag = queryArray[queryArray.length-1];
+
+      // Filter tags that match the input query
+      tagSuggestions = tags.filter(tag => tag.tagName.startsWith(nextTag));
+    }
+
+    const selectTag = (/** @type {{ tagName: string; }} */ tag) => {
+      //TODO CHANGE THIS JAUNT SO THAT IT CAN TAKE MULTIPLE TAGS
+      // Handle selecting a tag from suggestions
+      searchQuery = tag.tagName;
+      tagSuggestions = []; // Clear suggestions
+      goto(`/${searchQuery.toLowerCase()}`);
+    }
+
+      const handleInputFocus = () => {
+      isInputFocused = true;
+    }
+
+    const handleInputBlur = () => {
+      setTimeout(() => {
+        isInputFocused = false;
+      }, 100);
+    }
+      
+
+    // TAG UTILITY ----------------------------------------------------------------------------------------------------- 
 
     // Returns a list of the top 20 tags sorted by the amount of images that have that tag
     function getTagsByNumberOfEntry() {
@@ -183,16 +273,30 @@
             <div class="position-sticky form-content">
                 <!-- Search -->  
                 <h5 id="search-for-images">Search for Images</h5>
-                <form class="search-bar text-center" method="post">
-                    <input name="search" autocomplete="off" bind:value={searchQuery}>
+                <form class="search-bar text-center" method="GET" on:submit={handleSearch}>
+                    <input name="search" autocomplete="off" bind:value={searchQuery} on:input={handleInputChange} on:focus={handleInputFocus} on:blur={handleInputBlur}>
+
+                    <!-- Search Suggestions -->
+                    {#if isInputFocused && tagSuggestions.length !=0}
+                    <ul class="tag-suggestion-list">
+                      {#each tagSuggestions as tag (tag.tagID)}
+                        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                        <li class="tag-suggestion" on:keydown={() => selectTag(tag)} on:click={() => selectTag(tag)}>{tag.tagName}</li>
+                      {/each}
+                    </ul>
+                    {/if}
+                    
                     <button on:click={handleSearch} type="button">Search</button>
                 </form>
+
+                
+
                 <!-- Tags -->
                 <h5 id="tags">Tags: </h5>
                 <ul>
                     {#each getTagsByNumberOfEntry() as imgTag}
                       <li>
-                        <a style="color: {imgTag[1]}" href="/">{imgTag[0]}</a>
+                        <a style="color: {imgTag[1]}" href="/{imgTag[0].toLowerCase()}" on:click={() => searchQuery = imgTag[0].toLowerCase()}>{imgTag[0]}</a>
                       </li>
                     {/each}
                 </ul>
@@ -221,11 +325,25 @@
                   
             </div>
             <div class="row">
-                {#each getVisibleImages(searchIndex) as image, index (image.imageID)}
+              
+                {#if !data.query}
+                {#each getVisibleImages() as image, index (image.imageID)}
                     <div class="col-md-2"> 
                         <img class="img-thumbnail" src="Images/{image.imageURL}" alt={`Image ${image.imageID}`} />
                     </div>
                 {/each}
+                {:else}
+                  {#if getVisibleImagesByTag(data.query).length != 0}
+                    {#each getVisibleImagesByTag(data.query) as image, index (image.imageID)}
+                      <div class="col-md-2"> 
+                        <img class="img-thumbnail" src="Images/{image.imageURL}" alt={`Image ${image.imageID}`} />
+                      </div>
+                    {/each}
+                  {:else}
+                    <p class="text-center">No Results Found</p>
+                  {/if}
+                {/if}
+              
             </div>
 
             <div class="col-md text-center button-container">
