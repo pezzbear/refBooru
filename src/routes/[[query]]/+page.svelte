@@ -33,7 +33,7 @@
 
     let searchQuery = "";
 
-    const handleSearch = (/** @type {{ preventDefault: () => void; }} */ event) => {
+    function handleSearch(/** @type {{ preventDefault: () => void; }} */ event) {
       event.preventDefault();
       goto(`/${searchQuery.toLowerCase()}`);
     };
@@ -106,28 +106,79 @@
         return false;
       }
 
-    const handleInputChange = () => {
+    function handleInputChange() {
       const query = searchQuery.toLowerCase();
       const queryArray = query.split(" ");
       const nextTag = queryArray[queryArray.length-1];
 
       // Filter tags that match the input query
       tagSuggestions = tags.filter(tag => tag.tagName.startsWith(nextTag));
+
+      if (searchQuery === "") {
+        tagSuggestions = [];
+      }
     }
 
-    const selectTag = (/** @type {{ tagName: string; }} */ tag) => {
-      //TODO CHANGE THIS JAUNT SO THAT IT CAN TAKE MULTIPLE TAGS
+    /**
+     * @param {number} _tagID
+     */
+    function getTagColor(_tagID) {
+      let tagColor;
+
+      tags.forEach((t) => {
+        tagType.forEach((tt) => {
+          if (t.tagID == _tagID && tt.tagTypeID == t.tagTypeID) {
+            tagColor = tt.typeColor;
+          }
+        });
+      });
+
+      return tagColor;
+    }
+
+    /**
+     * @param {number} _tagID
+     */
+    function getTagQuantity(_tagID) {
+      
+      let val = 0;
+      
+      imageTags.forEach((imageTag) => {
+        const TagID = imageTag.tagID;
+        if (_tagID == TagID) {
+            val++
+        }
+      });
+
+      return val;
+    }
+
+
+    function selectTag(/** @type {{ tagName: string; }} */ tag) {
       // Handle selecting a tag from suggestions
-      searchQuery = tag.tagName;
+      const queryArray = searchQuery.split(" ");
+      searchQuery = "";
+      if(queryArray.length == 1) {
+        searchQuery = tag.tagName
+      } else {
+          for(let i = 0; i < queryArray.length; i++) {
+            if(i == queryArray.length - 1) {
+              searchQuery = searchQuery + tag.tagName
+            } else {
+              searchQuery = searchQuery + queryArray[i] + " "
+          }
+        }
+      }
+      
       tagSuggestions = []; // Clear suggestions
       goto(`/${searchQuery.toLowerCase()}`);
     }
 
-      const handleInputFocus = () => {
+    function handleInputFocus() {
       isInputFocused = true;
     }
 
-    const handleInputBlur = () => {
+    function handleInputBlur() {
       setTimeout(() => {
         isInputFocused = false;
       }, 100);
@@ -137,7 +188,7 @@
     // TAG UTILITY ----------------------------------------------------------------------------------------------------- 
 
     // Returns a list of the top 20 tags sorted by the amount of images that have that tag
-    function getTagsByNumberOfEntry() {
+    function getTagsByNumberOfEntry(tagsDisplayed = tags.length) {
         let tempMap = new Map();
 
         // Count the occurrences of each TagID in imageTags
@@ -160,16 +211,17 @@
         //Take that array, and conver it to a new array with [TagID, Color]
 
         let exportMap = new Map();
-        
+
         let count = 0;
 
-        if (count <= numberOfTagsDisplayed) {
+        if(count < tagsDisplayed) {
           tempArray.forEach(a => {
             tags.forEach(t => {
               if(t.tagID === a[0]) {
                 tagType.forEach(tt => {
                   if(tt.tagTypeID === t.tagTypeID) {
-                    exportMap.set(t.tagName, tt.typeColor);
+                    const arry = [tt.typeColor, a[1]]
+                    exportMap.set(t.tagName, arry);
                     count ++;
                   }
                 })
@@ -177,7 +229,6 @@
             })
           });
         }
-        
 
         return exportMap;
     }
@@ -281,7 +332,10 @@
                     <ul class="tag-suggestion-list">
                       {#each tagSuggestions as tag (tag.tagID)}
                         <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                        <li class="tag-suggestion" on:keydown={() => selectTag(tag)} on:click={() => selectTag(tag)}>{tag.tagName}</li>
+                        <li class="tag-suggestion" on:keydown={() => selectTag(tag)} on:click={() => selectTag(tag)}>
+                          <span style="color: {getTagColor(tag.tagID)}">{tag.tagName}</span>
+                          <p>{getTagQuantity(tag.tagID)}</p>
+                        </li>
                       {/each}
                     </ul>
                     {/if}
@@ -289,17 +343,19 @@
                     <button on:click={handleSearch} type="button">Search</button>
                 </form>
 
-                
-
                 <!-- Tags -->
                 <h5 id="tags">Tags: </h5>
-                <ul>
-                    {#each getTagsByNumberOfEntry() as imgTag}
+                <ul class="tags-list">
+                    {#each getTagsByNumberOfEntry(numberOfTagsDisplayed) as imgTag}
                       <li>
-                        <a style="color: {imgTag[1]}" href="/{imgTag[0].toLowerCase()}" on:click={() => searchQuery = imgTag[0].toLowerCase()}>{imgTag[0]}</a>
+                        <p class="tag-p">  
+                          <a style="color: {imgTag[1][0]}" href="/{imgTag[0].toLowerCase()}" on:click={() => searchQuery = imgTag[0].toLowerCase()}>{imgTag[0]}</a>
+                          {imgTag[1][1]}
+                        </p>
                       </li>
                     {/each}
                 </ul>
+
                 <h5>Tag Legend</h5>
                 <ul>
                   {#each tagType as tt}

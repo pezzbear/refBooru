@@ -57,6 +57,19 @@ padding: 0;
     margin-top: 35px;
 }
 
+.tags-list {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+}
+
+.tags-list li:hover {
+    background-color: #f3e3ff;
+}
+
+.tags-list a {
+    text-decoration: none;
+}
 
 .search-bar input {
     width: 100%;
@@ -144,12 +157,32 @@ padding: 0;
 .tag-suggestion {
     list-style: none;
     text-align: left;
-    text-decoration: underline;
     padding: 3px;
+    display:flex;
+}
+
+.tag-suggestion p {
+    text-align: right;
+    margin: 0;
+    color: #585858
+}
+
+.tag-suggestion span {
+    flex: 1;
+    text-align: left;
 }
 
 .tag-suggestion:hover{
     list-style: none;
     text-align: left;
-    color: blue;
+    background-color: #f3e3ff;
+}
+
+.tag-p {
+    margin: 0px;
+    color: #585858
+}
+
+.tag-p a {
+    padding-right: 5px;
 }
