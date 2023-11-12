@@ -65,10 +65,16 @@ padding: 0;
 
 .tags-list li:hover {
     background-color: #f3e3ff;
+    text-decoration: underline;
 }
 
 .tags-list a {
     text-decoration: none;
+}
+
+.tag-legend {
+    padding: 0px;
+    width: 10em;
 }
 
 .search-bar input {
@@ -176,6 +182,7 @@ padding: 0;
     list-style: none;
     text-align: left;
     background-color: #f3e3ff;
+    text-decoration: underline;
 }
 
 .tag-p {
@@ -185,4 +192,9 @@ padding: 0;
 
 .tag-p a {
     padding-right: 5px;
+}
+
+.big-image {
+    max-width: 100%;
+    height: auto !important;
 }

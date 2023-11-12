@@ -9,7 +9,7 @@
     <!--Navbar / Banner-->
     <nav class="navbar navbar-expand-lg navbar-light">
         <a class="navbar-link" href="/">
-            <img src="refBooruIcon.svg" alt="refBooru icon">
+            <img src="../refBooruIcon.svg" alt="refBooru icon">
         </a>
         <a class="navbar-link-text text-center" href="/">
             Home

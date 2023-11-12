@@ -1,7 +1,7 @@
 
 <script>
+    import { enhance } from '$app/forms';
     import { goto } from '$app/navigation';
-    import Cookies from 'js-cookie';
     export let data
     // Variable Initiation -----------------------------------------------------------------------------------------------------------
     
@@ -23,9 +23,6 @@
       // images shown to the user per page
     let itemsPerPage = 10;
 
-      // gets the total # of pages that can be depending on the # of images shown to the user
-    $: totalPages = Math.ceil(references.length/itemsPerPage);
-
     /**
      * @type {any[]} 
      * array used to display tag suggestions to the user
@@ -36,21 +33,24 @@
     let isInputFocused = false;
 
       // tracks the users current search input query
-    let searchQuery = data.query ?? "";
+    let searchQuery = "";
 
-
-      /**
-     * Initializes cookies for when a user first enters the site
+    /**
+     * @param {string} imageID
      */
-    function initCookies() {
-      if (getCookie('itemsPerPage') == undefined) {
-        setCookie('itemsPerPage', itemsPerPage, { expires: 365 });
-        savedItemsPerPage = itemsPerPage;
-      }
+    function getImageURL(imageID) {
+        let imageURL = "";
+        for(const ref of references) {
+            if(ref.imageID.toString() === imageID) {
+                imageURL = ref.imageURL;
+                break;
+            }
+        }
+        
+        return imageURL
     }
 
     // TAG SEARCH UTILITY --------------------------------------------------------------------------------------------------------------
-
     /**
      * Handles the user's search input and routes them to the home page with the search query 
      * @param event Default input event to be disabled. Don't pass an argument
@@ -59,73 +59,6 @@
       event.preventDefault();
       goto(`/${searchQuery.toLowerCase()}`);
     };
-
-    // Returns all of the visible images that get displayed on the page
-    $: getVisibleImages = () => {
-      const start = currentPage * itemsPerPage;
-      const end = Math.min(start + itemsPerPage, references.length);
-      totalPages = Math.ceil(references.length/itemsPerPage);
-      return references.slice(start, end);
-    }
-
-    // Returns all of the visible images that get displayed on the page sorted by tag
-    function getVisibleImagesByTag(searchTags = "") {
-        //Search Logic
-        /**
-           * @type {{ imageID: number; imageURL: string; }[]}
-           */
-        let searchedRefArray = [];
-        //First take the tags and convert them into an array with each entry being a tagID.
-        const tagArray = searchTags.split(' ');
-        /**
-           * @type {number[]}
-        */
-        let tagIDArray = [];
-
-        tags.forEach((/** @type {{ tagName: string; tagID: number; }} */ getTag) => {
-          tagArray.forEach(name => {
-            if (getTag.tagName == name) {
-              tagIDArray.push(getTag.tagID);
-            }
-          });
-        });
-
-        //Looping through all off the reference images and checking if they have the included tags
-        references.forEach((/** @type {{ imageID: any; imageURL: string; }} */ ref) => {
-          let refIsValid = true; // Initialize a flag for each ref
-
-          for (let i = 0; i < tagIDArray.length; i++) {
-            if (!ImageHasTag(ref.imageID, tagIDArray[i])) {
-              refIsValid = false; // Set the flag to false and break the loop
-              break;
-            }
-          }
-
-          if (refIsValid) {
-            // Only if ref is valid for all tags, add it to the new array
-            searchedRefArray.push(ref);
-          }
-        });
-
-        //returning all of the tags to be displayed
-        const start = currentPage * itemsPerPage;
-        const end = Math.min(start + itemsPerPage, searchedRefArray.length);
-        totalPages = Math.ceil(searchedRefArray.length/itemsPerPage);
-        return searchedRefArray.slice(start, end);
-    }
-    
-    /**
-     * @param {number} imageID
-     * @param {number} tagID
-     */
-     function ImageHasTag(imageID, tagID) {
-        for (const imageTag of imageTags) {
-          if (imageID == imageTag.imageID && tagID == imageTag.tagID) {
-            return true;
-          }
-        }
-        return false;
-      }
 
     function handleInputChange() {
       const query = searchQuery.toLowerCase();
@@ -267,68 +200,6 @@
             }
         }
 
-    /**
-     * @param {number} page
-     */
-    function goToPage(page) {
-        if (page >= 0 && page < totalPages) {
-        currentPage = page;
-        }
-    }
-
-    function nextPage() {
-        if (currentPage != totalPages) {
-            currentPage ++;
-        }
-    }
-
-    function prevPage() {
-        if (currentPage != 0) {
-            currentPage --;
-        }
-    }
-
-    
-    //Cookies Manager Fuctions
-
-
-  // Function to set a cookie
-  /**
-     * @param {any} name
-     * @param {any} value
-     * @param {any} options
-     */
-  function setCookie(name, value, options) {
-    Cookies.set(name, value, options);
-  }
-
-  // Function to get the value of a cookie
-  /**
-     * @param {any} name
-     */
-  function getCookie(name) {
-    return Cookies.get(name);
-  }
-
-  // Function to delete a cookie
-  /**
-     * @param {any} name
-     */
-  function deleteCookie(name) {
-    Cookies.remove(name);
-  }
-
-  let savedItemsPerPage = getCookie('itemsPerPage');
-  itemsPerPage = savedItemsPerPage
-
-  function saveItemsPerPage() {
-    if (itemsPerPage > 0) {
-      setCookie('itemsPerPage', itemsPerPage, { expires: 365 });
-      savedItemsPerPage = itemsPerPage;
-    }
-  }
-
-  initCookies()
   
   //Support functions for utility purposes
   /**
@@ -337,8 +208,6 @@
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
-
-  
 
 </script>
 
@@ -394,76 +263,7 @@
 
         <!-- Main Content -->
         <main class="col-md-9 img-grid">
-            <div class="item-per-dropdown justify-content-end">
-                <div class="dropdown-container">
-                    <label style="padding-bottom: 3px; padding-right: 5px;" for="itemsPerPage" class="align-middle">Images Per Page: </label>
-                    <select placeholder=10 bind:value={itemsPerPage} on:change={() => saveItemsPerPage()}>
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="30">30</option>
-                    </select>
-                </div>
-                  
-            </div>
-            <div class="row">
-                {#if !data.query}
-                {#each getVisibleImages() as image, index (image.imageID)}
-                    <div class="col-md-2"> 
-                      <a href="/image/{image.imageID}">
-                        <img class="img-thumbnail" src="Images/{image.imageURL}" alt={`Image ${image.imageID}`} />
-                      </a>
-                    </div>
-                {/each}
-                {:else}
-                  {#if getVisibleImagesByTag(data.query).length != 0}
-                    {#each getVisibleImagesByTag(data.query) as image, index (image.imageID)}
-                      <div class="col-md-2"> 
-                        <a href="/image/{image.imageID}">
-                          <img class="img-thumbnail" src="Images/{image.imageURL}" alt={`Image ${image.imageID}`} />
-                        </a>
-                      </div>
-                    {/each}
-                  {:else}
-                    <p class="text-center">No Results Found</p>
-                  {/if}
-                {/if}
-              
-            </div>
-
-            <div class="col-md text-center button-container">
-              <button on:click={prevPage} disabled={currentPage === 0}>&lt</button>
-            
-              <!-- Render page number buttons and ellipsis (...) -->
-              {#if totalPages > 1}
-                {#if currentPage > 1}
-                  <button on:click={() => goToPage(0)}>1</button>
-                {/if}
-            
-                {#if currentPage > 2}
-                  <span>...</span>
-                {/if}
-            
-                {#if currentPage > 0}
-                  <button on:click={() => goToPage(currentPage - 1)}>{currentPage}</button>
-                {/if}
-            
-                <button disabled>{currentPage + 1}</button> 
-            
-                {#if currentPage < totalPages - 1}
-                  <button on:click={() => goToPage(currentPage + 1)}>{currentPage + 2}</button>
-                {/if}
-            
-                {#if currentPage < totalPages - 3}
-                  <span>...</span>
-                {/if}
-            
-                {#if currentPage < totalPages - 2}
-                  <button on:click={() => goToPage(totalPages - 1)}>{totalPages}</button>
-                {/if}
-              {/if}
-            
-              <button on:click={nextPage} disabled={currentPage >= totalPages - 1}>&gt</button>
-            </div>
+            <img width="700" class="big-image" src="../Images/{getImageURL(data.query)}" alt="{getImageURL(data.query)}"/>
         </main>
     </div>
 </div>
