@@ -20,6 +20,9 @@
         <a class="navbar-link-text text-center" href="/contact">
             Contact
         </a>
+        <a class="navbar-link-text text-center" href="/database">
+            Database
+        </a>
     </nav>
 
     <slot />

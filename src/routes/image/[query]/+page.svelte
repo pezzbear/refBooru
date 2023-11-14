@@ -35,6 +35,11 @@
       // tracks the users current search input query
     let searchQuery = "";
 
+    let imageIsResized = false;
+
+    let resizedPercent = 0;
+
+
     /**
      * @param {string} imageID
      */
@@ -48,6 +53,10 @@
         }
         
         return imageURL
+    }
+
+    function setResizePercent() {
+
     }
 
     // TAG SEARCH UTILITY --------------------------------------------------------------------------------------------------------------
@@ -135,71 +144,43 @@
     function handleInputBlur() {
       setTimeout(() => {
         isInputFocused = false;
-      }, 100);
+      }, 1000);
     }
       
 
     // TAG UTILITY ----------------------------------------------------------------------------------------------------- 
 
-    // Returns a list of the top 20 tags sorted by the amount of images that have that tag
-    function getTagsByNumberOfEntry(tagsDisplayed = tags.length) {
-        let tempMap = new Map();
+    /**
+     * @param {number} imageID
+     */
+    function getSelectedImageTags(imageID) {
+      /**
+         * @type {number[]}
+         */
+      let tagArry = [];
+      imageTags.forEach(imgTags => {
+        if (imgTags.imageID === imageID) {
+          tagArry.push(imgTags.tagID);
+        }
+      })
 
-        // Count the occurrences of each TagID in imageTags
-        imageTags.forEach((/** @type {{ tagID: any; }} */ imageTag) => {
-            const TagID = imageTag.tagID;
-            if (tempMap.has(TagID)) {
-                let val = tempMap.get(TagID)
-                val++
-                tempMap.set(TagID, val);
-            } else {
-                tempMap.set(TagID, 1);
-            }
-        });
+      let exportMap = new Map();
 
-        // Converts the map to an array then sorts it by decending order (number of images per tag)
-        const tempArray = [...new Set(tempMap)];
-
-        tempArray.sort(compareSecondColumn)
-
-        //Take that array, and conver it to a new array with [TagID, Color]
-
-        let exportMap = new Map();
-
-        let count = 0;
-
-        if(count < tagsDisplayed) {
-          tempArray.forEach(a => {
-            tags.forEach(t => {
-              if(t.tagID === a[0]) {
-                tagType.forEach((/** @type {{ tagTypeID: any; typeColor: any; }} */ tt) => {
-                  if(tt.tagTypeID === t.tagTypeID) {
-                    const arry = [tt.typeColor, a[1]]
-                    exportMap.set(t.tagName, arry);
-                    count ++;
-                  }
-                })
+      tagArry.forEach(a => {
+        tags.forEach(t => {
+          if(t.tagID === a) {
+            tagType.forEach((/** @type {{ tagTypeID: any; typeColor: any; }} */ tt) => {
+              if(tt.tagTypeID === t.tagTypeID) {
+                const arry = [tt.typeColor]
+                exportMap.set(t.tagName, arry);
               }
             })
-          });
-        }
+          }
+        })
+      });
 
         return exportMap;
     }
-
-    /** Function that is used to sort the tags array
-         * @param {number[]} a
-         * @param {number[]} b
-         */
-         function compareSecondColumn(a, b) {
-            if (a[1] === b[1]) {
-                return 0;
-            }
-            else {
-                return (a[1] > b[1]) ? -1 : 1;
-            }
-        }
-
   
   //Support functions for utility purposes
   /**
@@ -240,11 +221,10 @@
                 <!-- Tags -->
                 <h5 id="tags">Tags: </h5>
                 <ul class="tags-list">
-                    {#each getTagsByNumberOfEntry(numberOfTagsDisplayed) as imgTag}
+                    {#each getSelectedImageTags(parseInt(data.query)) as imgTag}
                       <li>
                         <p class="tag-p">  
-                          <a style="color: {imgTag[1][0]}" href="/{imgTag[0].toLowerCase()}" on:click={() => searchQuery = imgTag[0].toLowerCase()}>{imgTag[0]}</a>
-                          {imgTag[1][1]}
+                          <a style="color: {imgTag[1][0]}" href="/{imgTag[0].toLowerCase()}" on:click={() => searchQuery = imgTag[0].toLowerCase()}>{imgTag[0]}</a> 
                         </p>
                       </li>
                     {/each}
@@ -262,7 +242,7 @@
         </nav>
 
         <!-- Main Content -->
-        <main class="col-md-9 img-grid">
+        <main class="col-md-9 img-grid">  
             <img width="700" class="big-image" src="../Images/{getImageURL(data.query)}" alt="{getImageURL(data.query)}"/>
         </main>
     </div>

@@ -202,7 +202,7 @@
     function handleInputBlur() {
       setTimeout(() => {
         isInputFocused = false;
-      }, 100);
+      }, 1000);
     }
       
 

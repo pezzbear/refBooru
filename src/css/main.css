@@ -60,6 +60,7 @@ padding: 0;
 .tags-list {
     margin: 0px;
     padding: 0px;
+    padding-bottom: 5px;
     list-style: none;
 }
 
@@ -197,4 +198,15 @@ padding: 0;
 .big-image {
     max-width: 100%;
     height: auto !important;
+}
+
+
+/* About/Contact Pages */ 
+
+.about {
+    padding-left: 1rem;
+}
+
+.about h2 {
+    padding-top: 1rem;
 }
