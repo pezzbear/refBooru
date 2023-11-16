@@ -5,42 +5,33 @@
     export let data
     // Variable Initiation -----------------------------------------------------------------------------------------------------------
     
-      // Data references from the database
+    /** Pointer to all of the reference images in the db */
     const references = data.images
 
+    /** Pointer to all of the tags in the db */
     const tags = data.tags
 
+    /** Pointer to all of the ImageTags (connection between the reference images and the tags) in the db*/
     const imageTags = data.imageTags
 
+    /** Pointer to the all of the tagTypes TODO rename all references to tagGroups*/
     const tagType = data.tagTypes
-
-      // # of tags displayed to the user on the side bar
-    const numberOfTagsDisplayed = 20;
-
-      // tracks the current page the user is on
-    let currentPage = 0;
-      
-      // images shown to the user per page
-    let itemsPerPage = 10;
 
     /**
      * @type {any[]} 
-     * array used to display tag suggestions to the user
+     * Array used to display tag suggestions to the user
      */
     let tagSuggestions = [];
 
-      // flag to keep track if the user is tabbed into the search bar 
+    /** Flag to keep track if the user is tabbed into the search bar */
     let isInputFocused = false;
 
-      // tracks the users current search input query
-    let searchQuery = "";
-
-    let imageIsResized = false;
-
-    let resizedPercent = 0;
+    /** Tracks the users current search input query */
+    let searchQuery = data.query ?? "";
 
 
     /**
+     * Gets the imageURL of the passed imageID
      * @param {string} imageID
      */
     function getImageURL(imageID) {
@@ -53,10 +44,6 @@
         }
         
         return imageURL
-    }
-
-    function setResizePercent() {
-
     }
 
     // TAG SEARCH UTILITY --------------------------------------------------------------------------------------------------------------
@@ -83,11 +70,11 @@
     }
 
     /**
+     * Returns the tag color hexadecimal of the passed tagID
      * @param {number} _tagID
      */
-    function getTagColor(_tagID) {
-      let tagColor;
-
+     function getTagColor(_tagID) {
+      let tagColor
       tags.forEach((/** @type {{ tagID: number; tagTypeID: any; }} */ t) => {
         tagType.forEach((/** @type {{ tagTypeID: any; typeColor: any; }} */ tt) => {
           if (t.tagID == _tagID && tt.tagTypeID == t.tagTypeID) {
@@ -99,10 +86,12 @@
       return tagColor;
     }
 
+
     /**
+     * Returns the number of times the passed TagID has been assigned to an image
      * @param {number} _tagID
      */
-    function getTagQuantity(_tagID) {
+     function getTagQuantity(_tagID) {
       
       let val = 0;
       
@@ -117,8 +106,11 @@
     }
 
 
-    function selectTag(/** @type {{ tagName: string; }} */ tag) {
-      // Handle selecting a tag from suggestions
+    /**
+     * Selects the tag the user clicked on in the suggestion list and adds it to the searchQuery
+     * @param tag
+     */
+     function selectTag(/** @type {{ tagName: string; }} */ tag) {
       const queryArray = searchQuery.split(" ");
       searchQuery = "";
       if(queryArray.length == 1) {
@@ -137,10 +129,16 @@
       goto(`/${searchQuery.toLowerCase()}`);
     }
 
-    function handleInputFocus() {
+    /**
+     * Used to set the isInputFocused flag to true when the search bar is in focus
+     */
+     function handleInputFocus() {
       isInputFocused = true;
     }
 
+    /**
+     * Used to set the isInputFocused flag to false after a delay when the search bar is out of focus
+     */
     function handleInputBlur() {
       setTimeout(() => {
         isInputFocused = false;
@@ -151,6 +149,7 @@
     // TAG UTILITY ----------------------------------------------------------------------------------------------------- 
 
     /**
+     * Returns all of the tags associated with the passed imageID
      * @param {number} imageID
      */
     function getSelectedImageTags(imageID) {
@@ -184,11 +183,13 @@
   
   //Support functions for utility purposes
   /**
-     * @param {string} string
-     */
-  function capitalizeFirstLetter(string) {
+   * Returns the passed string but with the first letter capitalized.
+   * @param {string} string
+   */
+   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
+
 
 </script>
 

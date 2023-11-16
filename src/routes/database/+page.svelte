@@ -1,6 +1,6 @@
 <script>
     export let data;
-
+    /**Shows the first 10 images stored in the db */
     const showImg = data.images.slice(0, 10);
 </script>
 

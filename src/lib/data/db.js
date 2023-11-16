@@ -1,5 +1,4 @@
 // api/db.js
-import express from 'express';
 import sql from 'mssql';
 
 const config = {
@@ -24,7 +23,7 @@ const config = {
     } catch (error) {
       // Handle errors
       console.error(error);
-      throw error; // Propagate the error to handle it in your +page.server.js
+      throw error; 
     } finally {
       // Close the connection
       await sql.close();

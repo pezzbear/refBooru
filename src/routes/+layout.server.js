@@ -4,7 +4,9 @@ import getTag from '$lib/data/Tag.json';
 import getTagType from '$lib/data/TagType.json';
 
 export function load() {
-    // Create an object to store the data
+    /**
+     * Object to hold all of the data imported from the mock JSON database
+     */
     const formattedData = {
         images: getImages.map((imageData) => ({
             imageID: imageData.ImageID,

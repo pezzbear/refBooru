@@ -3,64 +3,59 @@
     import { goto } from '$app/navigation';
     import Cookies from 'js-cookie';
     export let data
+
     // Variable Initiation -----------------------------------------------------------------------------------------------------------
     
-      // Data references from the database
+    /** Pointer to all of the reference images in the db */
     const references = data.images
 
+    /** Pointer to all of the tags in the db */
     const tags = data.tags
 
+    /** Pointer to all of the ImageTags (connection between the reference images and the tags) in the db*/
     const imageTags = data.imageTags
 
+    /** Pointer to the all of the tagTypes TODO rename all references to tagGroups*/
     const tagType = data.tagTypes
 
-      // # of tags displayed to the user on the side bar
+    /** Number of tags displayed to the user on the navbar*/
     const numberOfTagsDisplayed = 20;
 
-      // tracks the current page the user is on
+    /** Tracks the current page the user is on */
     let currentPage = 0;
       
-      // images shown to the user per page
+    /**Number of images shown to the user per page*/
     let itemsPerPage = 10;
 
-      // gets the total # of pages that can be depending on the # of images shown to the user
+    /** Total # of pages that there can be depending on the # of images shown to the user and the # of images in the db */
     $: totalPages = Math.ceil(references.length/itemsPerPage);
 
     /**
      * @type {any[]} 
-     * array used to display tag suggestions to the user
+     * Array used to display tag suggestions to the user
      */
     let tagSuggestions = [];
 
-      // flag to keep track if the user is tabbed into the search bar 
+    /** Flag to keep track if the user is tabbed into the search bar */
     let isInputFocused = false;
 
-      // tracks the users current search input query
+    /** Tracks the users current search input query */
     let searchQuery = data.query ?? "";
-
-
-      /**
-     * Initializes cookies for when a user first enters the site
-     */
-    function initCookies() {
-      if (getCookie('itemsPerPage') == undefined) {
-        setCookie('itemsPerPage', itemsPerPage, { expires: 365 });
-        savedItemsPerPage = itemsPerPage;
-      }
-    }
 
     // TAG SEARCH UTILITY --------------------------------------------------------------------------------------------------------------
 
     /**
-     * Handles the user's search input and routes them to the home page with the search query 
-     * @param event Default input event to be disabled. Don't pass an argument
+     * Handles the user's search input and routes them to the home page with the search query.
+     * @param event Default input event to be disabled. Don't pass an argument.
      */
     function handleSearch(/** @type {{ preventDefault: () => void; }} */ event) {
       event.preventDefault();
       goto(`/${searchQuery.toLowerCase()}`);
     };
 
-    // Returns all of the visible images that get displayed on the page
+    /**
+     * Returns all of the images visible to the user for the page they are on
+     */
     $: getVisibleImages = () => {
       const start = currentPage * itemsPerPage;
       const end = Math.min(start + itemsPerPage, references.length);
@@ -68,17 +63,20 @@
       return references.slice(start, end);
     }
 
-    // Returns all of the visible images that get displayed on the page sorted by tag
+    /**
+     * Returns all of the images visible to the user that have the passed tag argument.
+     * @param searchTags A string of tags separated by a space.
+     */
     function getVisibleImagesByTag(searchTags = "") {
         //Search Logic
         /**
-           * @type {{ imageID: number; imageURL: string; }[]}
-           */
+        * @type {{ imageID: number; imageURL: string; }[]}
+        */
         let searchedRefArray = [];
         //First take the tags and convert them into an array with each entry being a tagID.
         const tagArray = searchTags.split(' ');
         /**
-           * @type {number[]}
+        * @type {number[]}
         */
         let tagIDArray = [];
 
@@ -115,19 +113,25 @@
     }
     
     /**
+     * Returns true if the specified ImageID has the specified TagID.
      * @param {number} imageID
      * @param {number} tagID
-     */
-     function ImageHasTag(imageID, tagID) {
-        for (const imageTag of imageTags) {
-          if (imageID == imageTag.imageID && tagID == imageTag.tagID) {
-            return true;
-          }
+    */
+    function ImageHasTag(imageID, tagID) {
+      //looping through each imagetag and checking if the imageID and TagID match
+      for (const imageTag of imageTags) {
+        if (imageID == imageTag.imageID && tagID == imageTag.tagID) {
+          return true;
         }
-        return false;
       }
+      return false;
+    }
 
+    /**
+     * Updates the tag suggestions list everytime the user inputs into the search bar.
+     */
     function handleInputChange() {
+      //takes the searchQuery and formats it to an array with each tag as an entry
       const query = searchQuery.toLowerCase();
       const queryArray = query.split(" ");
       const nextTag = queryArray[queryArray.length-1];
@@ -141,11 +145,11 @@
     }
 
     /**
+     * Returns the tag color hexadecimal of the passed tagID
      * @param {number} _tagID
      */
     function getTagColor(_tagID) {
-      let tagColor;
-
+      let tagColor
       tags.forEach((/** @type {{ tagID: number; tagTypeID: any; }} */ t) => {
         tagType.forEach((/** @type {{ tagTypeID: any; typeColor: any; }} */ tt) => {
           if (t.tagID == _tagID && tt.tagTypeID == t.tagTypeID) {
@@ -158,6 +162,7 @@
     }
 
     /**
+     * Returns the number of times the passed TagID has been assigned to an image
      * @param {number} _tagID
      */
     function getTagQuantity(_tagID) {
@@ -174,9 +179,11 @@
       return val;
     }
 
-
+    /**
+     * Selects the tag the user clicked on in the suggestion list and adds it to the searchQuery
+     * @param tag
+     */
     function selectTag(/** @type {{ tagName: string; }} */ tag) {
-      // Handle selecting a tag from suggestions
       const queryArray = searchQuery.split(" ");
       searchQuery = "";
       if(queryArray.length == 1) {
@@ -195,10 +202,16 @@
       goto(`/${searchQuery.toLowerCase()}`);
     }
 
+    /**
+     * Used to set the isInputFocused flag to true when the search bar is in focus
+     */
     function handleInputFocus() {
       isInputFocused = true;
     }
 
+    /**
+     * Used to set the isInputFocused flag to false after a delay when the search bar is out of focus
+     */
     function handleInputBlur() {
       setTimeout(() => {
         isInputFocused = false;
@@ -208,7 +221,10 @@
 
     // TAG UTILITY ----------------------------------------------------------------------------------------------------- 
 
-    // Returns a list of the top 20 tags sorted by the amount of images that have that tag
+    /**
+     *  Returns a list of the top 20 tags sorted by the amount of images that have that tag
+     * @param tagsDisplayed Number of tags to display to the user
+     */
     function getTagsByNumberOfEntry(tagsDisplayed = tags.length) {
         let tempMap = new Map();
 
@@ -254,20 +270,21 @@
         return exportMap;
     }
 
-    /** Function that is used to sort the tags array
-         * @param {number[]} a
-         * @param {number[]} b
-         */
-         function compareSecondColumn(a, b) {
-            if (a[1] === b[1]) {
-                return 0;
-            }
-            else {
-                return (a[1] > b[1]) ? -1 : 1;
-            }
-        }
+    /** Sorts an array by its second column
+    * @param {number[]} a
+    * @param {number[]} b
+    */
+    function compareSecondColumn(a, b) {
+      if (a[1] === b[1]) {
+          return 0;
+      }
+      else {
+          return (a[1] > b[1]) ? -1 : 1;
+      }
+    }
 
     /**
+     * Changes the currentPage to a passed page number
      * @param {number} page
      */
     function goToPage(page) {
@@ -276,12 +293,18 @@
         }
     }
 
+    /**
+     * Increases the currentPage By 1
+    */
     function nextPage() {
         if (currentPage != totalPages) {
             currentPage ++;
         }
     }
 
+    /**
+     * Decreased the currentPage by 1
+     */
     function prevPage() {
         if (currentPage != 0) {
             currentPage --;
@@ -289,31 +312,30 @@
     }
 
     
-    //Cookies Manager Fuctions
+    //Cookies Manager Fuctions -----------------------------------------------------------------------------------------
 
-
-  // Function to set a cookie
   /**
-     * @param {any} name
-     * @param {any} value
-     * @param {any} options
+   * Sets a cookie 
+     * @param {any} name Name of the cookie
+     * @param {any} value Value to set the cookie
+     * @param {any} options Cookie options
      */
   function setCookie(name, value, options) {
     Cookies.set(name, value, options);
   }
 
-  // Function to get the value of a cookie
   /**
-     * @param {any} name
-     */
+   * Returns the value of a cookie
+   * @param {any} name Name of the cookie
+   */
   function getCookie(name) {
     return Cookies.get(name);
   }
 
-  // Function to delete a cookie
   /**
-     * @param {any} name
-     */
+   * Deletes a cookie - UNUSED AT THE MOMENT
+   * @param {any} name
+   */
   function deleteCookie(name) {
     Cookies.remove(name);
   }
@@ -321,6 +343,9 @@
   let savedItemsPerPage = getCookie('itemsPerPage');
   itemsPerPage = savedItemsPerPage
 
+  /**
+   * Saves the number of images per page cookie
+   */
   function saveItemsPerPage() {
     if (itemsPerPage > 0) {
       setCookie('itemsPerPage', itemsPerPage, { expires: 365 });
@@ -328,12 +353,24 @@
     }
   }
 
-  initCookies()
-  
-  //Support functions for utility purposes
   /**
-     * @param {string} string
+     * Initializes cookies for when a user first enters the site
      */
+     function initCookies() {
+      if (getCookie('itemsPerPage') == undefined) {
+        setCookie('itemsPerPage', itemsPerPage, { expires: 365 });
+        savedItemsPerPage = itemsPerPage;
+      }
+    }
+
+  initCookies()
+   
+  //Support functions for utility purposes ----------------------------------------------------------------------------------------
+
+  /**
+   * Returns the passed string but with the first letter capitalized.
+   * @param {string} string
+   */
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }

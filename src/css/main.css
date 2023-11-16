@@ -2,7 +2,7 @@
     font-family: 'balooregular';
 }
 
-/* NavBar */
+/* NavBar ------------------------------------------------------------------------------------------------------------*/
 .navbar{
 background-color: #E7C6FF;
 padding: 0;
@@ -36,7 +36,7 @@ padding: 0;
     background-color: white;
 }
 
-/* Search Bar */
+/* Search Bar ----------------------------------------------------------------------------------------------------------------- */
 
 .search-bar {
     width: 100%;
@@ -52,6 +52,41 @@ padding: 0;
     margin-top: 15px;
     margin: 0px;
 }
+
+.search-bar input {
+    width: 100%;
+    border-radius: 5px;
+}
+
+.search-bar button {
+    width: 100%;
+    border: 0px;
+    background-color: #E7C6FF;
+    color: white;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.button-container {
+    margin-top: 25px !important;
+    margin-bottom: 50px !important
+}
+
+.button-container button {
+    color: white;
+    background-color: #E7C6FF;
+    border-color: white;
+    border-width: 2px;
+    border-radius: 3px;
+}
+
+.button-container span {
+    display: inline-block;
+    vertical-align: bottom;
+    line-height: 1;
+}
+
+/* TAGS -------------------------------------------------------------------------------------------------------------- */
 
 #tags {
     margin-top: 35px;
@@ -71,88 +106,6 @@ padding: 0;
 
 .tags-list a {
     text-decoration: none;
-}
-
-.tag-legend {
-    padding: 0px;
-    width: 10em;
-}
-
-.search-bar input {
-    width: 100%;
-    border-radius: 5px;
-}
-
-.search-bar button {
-    width: 100%;
-    border: 0px;
-    background-color: #E7C6FF;
-    color: white;
-    border-radius: 5px;
-    margin-top: 5px;
-}
-
-.img-grid {
-    margin-top: 80px !important;
-}
-
-.img-thumbnail {
-    margin: 5px;
-    width: 150px;
-    height: 100px;
-}
-
-.button-container {
-    margin-top: 25px !important;
-    margin-bottom: 50px !important
-}
-
-.item-per-dropdown {
-    margin-bottom: 10px;
-    padding-right: calc(var(--bs-gutter-x) * .5);
-    display: flex;
-    justify-content: flex-end;
-}
-
-.dropdown-container{
-    background-color:#E7C6FF;
-    color: white;
-    padding: 10px;
-    padding-top: 11px;
-    border-radius: 5px;
-}
-
-.dropdown-container select {
-    color: white;
-    background-color: #E7C6FF;
-    border-color: white;
-    border-width: 2px;
-    border-radius: 3px;
-}
-
-.button-container button {
-    color: white;
-    background-color: #E7C6FF;
-    border-color: white;
-    border-width: 2px;
-    border-radius: 3px;
-}
-
-.button-container span {
-    display: inline-block;
-    vertical-align: bottom;
-    line-height: 1;
-}
-
-.circle {
-    color:white;
-    width: 25px;
-    height: 25px;
-    -webkit-border-radius: 25px;
-    -moz-border-radius: 25px;
-    border-radius: 25px;
-    background: red;
-    margin-bottom:5px;
 }
 
 .tag-suggestion-list {
@@ -195,13 +148,63 @@ padding: 0;
     padding-right: 5px;
 }
 
+.tag-legend {
+    padding: 0px;
+    width: 10em;
+}
+
+.circle {
+    color:white;
+    width: 25px;
+    height: 25px;
+    -webkit-border-radius: 25px;
+    -moz-border-radius: 25px;
+    border-radius: 25px;
+    background: red;
+    margin-bottom:5px;
+}
+
+/* IMAGE DISPLAY STUFF ---------------------------------------------------------------------------------------------------- */
+
 .big-image {
     max-width: 100%;
     height: auto !important;
 }
 
+.img-grid {
+    margin-top: 80px !important;
+}
 
-/* About/Contact Pages */ 
+.img-thumbnail {
+    margin: 5px;
+    width: 150px;
+    height: 100px;
+}
+
+.item-per-dropdown {
+    margin-bottom: 10px;
+    padding-right: calc(var(--bs-gutter-x) * .5);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.dropdown-container{
+    background-color:#E7C6FF;
+    color: white;
+    padding: 10px;
+    padding-top: 11px;
+    border-radius: 5px;
+}
+
+.dropdown-container select {
+    color: white;
+    background-color: #E7C6FF;
+    border-color: white;
+    border-width: 2px;
+    border-radius: 3px;
+}
+
+/* About/Contact Pages  -------------------------------------------------------------------------------------------------------------*/ 
 
 .about {
     padding-left: 1rem;

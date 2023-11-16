@@ -1,7 +1,4 @@
-//import db from ''
-
-// src/routes/your-page/+page.server.js
-
+// Import data from the db
 import { fetchData } from '$lib/data/db';
 
 export async function load({ params }) {
@@ -19,7 +16,6 @@ export async function load({ params }) {
     // Handle errors
     console.error(error);
 
-    // Return an error object if needed
     return {
       status: 500,
       error: 'Internal Server Error',
