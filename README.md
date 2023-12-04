@@ -1,3 +1,7 @@
+# Prerequisites
+
+You need to have Node.js installed for the application to work. You can install it [here](https://nodejs.org/en) 
+
 # Installing the website
 
 After downloading the zip and extracting it to a folder:
