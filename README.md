@@ -1,6 +1,6 @@
 # Prerequisites
 
-You need to have Node.js installed for the application to work. You can install it [here](https://nodejs.org/en) 
+You need to have Node.js(20.10.0) installed for the application to work. You can install it [here](https://nodejs.org/en) 
 
 # Installing the website
 
